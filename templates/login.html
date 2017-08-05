@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+
+{% block scripts %} 
+<script>
+$(document).ready(function (){ 
+                  $('#id_username').attr('class','form-control').attr('placeholder','Username');
+                  $('#id_password').attr('class','form-control').attr('placeholder','Password');
+                                              })
+</script> 
+{% endblock %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+  <h2>Login</h2>
+   
+  <form method="post">
+    {% csrf_token %}
+    <div id="inputformat">{{ form.as_p }}</div>
+
+    <button type="submit" class="btn btn-default">Login</button>
+  </form>
+
+{% endblock %}

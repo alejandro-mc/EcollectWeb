@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block scripts  %}
+
+<script >
+
+$(document).ready(function fred(){
+           $.ajax({url: "http://127.0.0.1:8000/getreport/?temp=22&hum=90&srad=80&press=1100", success: function(result){
+                   $("body").append("<p>" + result.hum + "," + result.press + "</p>");}});                            
+                   setTimeout(fred,2000);}
+                  );
+
+
+
+
+</script>
+
+{% endblock %}
+
+{% block content  %}
+
+<b>{{ now }}</b>
+
+{% endblock %}
