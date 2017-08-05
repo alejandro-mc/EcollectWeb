@@ -78,22 +78,24 @@ WSGI_APPLICATION = 'EcollectWeb.wsgi.application'
 
 
 
+
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'ecollectweb',
+        'USER':'ecollectweb',
+        'PASSWORD': 'Eniaq@358',
+        'HOST': 'localhost',
+        'PORT':'',
+    }
+}
+
 #Parse database configuration from $DATABASE_URL
 import dj_database_url
 
 db_from_env = dj_database_url.config(conn_max_age=500)
 DATABASES['default'].update(db_from_env)
-
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#        'NAME': 'ecollectweb',
-#        'USER':'ecollectweb',
-#        'PASSWORD': 'Eniaq@358',
-#        'HOST': 'localhost',
-#        'PORT':'',
-#    }
-#}
 
 
 # Password validation
