@@ -27,7 +27,7 @@
 prediction = []
 
 
-$.ajax({    url: "http://0.0.0.0:5000/getreport/", 
+$.ajax({    url: "http://ecollectweb.herokuapp.com/getreport/", 
         success: function(result){
                      prediction = result.prediction;
                      addTheLine()       
