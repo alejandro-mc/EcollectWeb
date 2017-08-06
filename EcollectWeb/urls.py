@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^home/',include('monitor.urls'),name="home"),
     url(r'^getreport/',include('getreport.urls')),
     url(r'^newentry/',include('newentry.urls')), 
+    url(r'^monitor/',include('monitor.urls')), 
     url(r'^login/|^accounts/login/',auth_views.login,{'template_name':'login.html'}),
     url(r'^logout/$', auth_views.logout,{'template_name':'logout.html'},name='logout'),
     url(r'^admin/', admin.site.urls),

@@ -2,23 +2,137 @@
 
 {% block scripts  %}
 
+
+
+
 <script >
 
-$(document).ready(function fred(){
-           $.ajax({url: "http://127.0.0.1:8000/getreport/?temp=22&hum=90&srad=80&press=1100", success: function(result){
-                   $("body").append("<p>" + result.hum + "," + result.press + "</p>");}});                            
+/*$(document).ready(function fred(){
+           $.ajax({url: "http://0.0.0.0:5000/getreport/", success: function(result){
+                   $("body").append("<p>" + result + "</p>");}});                            
                    setTimeout(fred,2000);}
                   );
 
 
-
+*/
 
 </script>
+
+
+<script src="/static/d3/d3.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script type="text/javascript">
+
+//get prdiction
+prediction = []
+
+
+$.ajax({    url: "http://0.0.0.0:5000/getreport/", 
+        success: function(result){
+                     prediction = result.prediction;
+                     addTheLine()       
+                 }     
+       });
+
+function addTheLine(){
+var svg = d3.select("svg"),
+    margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width = +svg.attr("width") - margin.left - margin.right,
+    height = +svg.attr("height") - margin.top - margin.bottom,
+    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+//var parseTime = d3.timeParse("%d-%b-%y");
+
+var x = d3.scaleTime()
+    .rangeRound([0, width]);
+
+var y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+
+var line = d3.line()
+    .x(function(d) { 
+       return x(new Date(d.datetime)); })
+    .y(function(d) { 
+       return y(d.temp); });
+
+// gridlines in x axis function
+function make_x_gridlines() {		
+    return d3.axisBottom(x)
+        .ticks(10)
+}
+
+// gridlines in y axis function
+function make_y_gridlines() {		
+    return d3.axisLeft(y)
+        .ticks(10)
+}
+
+
+//compute the min and max range
+min_date = new Date(prediction[0].datetime)
+prediction.reverse()
+max_date = new Date(prediction[0].datetime)
+prediction.reverse()
+
+x.domain([min_date,max_date])//date rante
+y.domain([-40,120])//tempearature range
+
+
+g.append("g")
+.attr("transform", "translate(0," + height + ")")
+.call(d3.axisBottom(x))
+.select(".domain");
+//.remove();
+
+g.append("g")
+.call(d3.axisLeft(y))
+.append("text")
+.attr("fill", "#000")
+.attr("transform", "rotate(-90)")
+.attr("y", 6)
+.attr("dy", "0.71em")
+.attr("text-anchor", "end")
+.text("Temp (F)");
+
+g.append("path")
+.datum(prediction)
+.attr("fill", "none")
+.attr("stroke", "steelblue")
+.attr("stroke-linejoin", "round")
+.attr("stroke-linecap", "round")
+.attr("stroke-width", 1.5)
+.attr("d", line);
+
+// add the X gridlines
+g.append("g")			
+.attr("stroke","gray")			
+.attr("stroke-width", 0.1)
+.attr("transform", "translate(0," + height + ")")
+.call(make_x_gridlines()
+.tickSize(-height)
+.tickFormat("")
+)
+
+// add the Y gridlines
+g.append("g")
+.attr("stroke","gray")			
+.attr("stroke-width", 0.1)
+.call(make_y_gridlines()
+.tickSize(-width)
+.tickFormat("")
+)
+
+
+}
+
+</script>
+
+
 
 {% endblock %}
 
 {% block content  %}
 
-<b>{{ now }}</b>
+<svg width="960" height="500"></svg>
 
 {% endblock %}
