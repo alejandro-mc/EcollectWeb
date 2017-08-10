@@ -23,31 +23,113 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script type="text/javascript">
 
-//get prdiction
+
+//create svg canvas and and main g tag 
+svg = d3.select("svg"),
+margin = {top: 20, right: 20, bottom: 30, left: 50},
+width = +svg.attr("width") - margin.left - margin.right,
+height = +svg.attr("height") - margin.top - margin.bottom,
+g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+
+x = d3.scaleTime()
+    .rangeRound([0, width]);
+
+y = d3.scaleLinear()
+    .rangeRound([height, 0]);
+
+
+
+//get prediction
 prediction = []
+hours_after_prediction = 0
+latest_temp = []
 
-
-$.ajax({    url: "/getreport/", 
+$.ajax({   
+            url: "/getreport/", 
         success: function(result){
-                     prediction = result.prediction;
-                     addTheLine()       
+                 prediction  = result.prediction;
+                 latest_temp=[]    
+                 addTheLine();
                  }     
-       });
+            });
+
+setInterval(
+function (){$.ajax({   
+            url: "/getreport/", 
+        success: function(result){
+                 prediction  = result.prediction;
+                 latest_temp=[]    
+                 addTheLine()
+                 }     
+            });
+},
+12000);
+
+
+
+//get and draw latest temps
+$.ajax({   
+            url: "/getreport/", 
+        success: function(result){
+                 latest_temp.push(result.prediction);
+                     
+                 updatetemp();
+                 }     
+            });
+
+setInterval(
+function (){
+$.ajax({   
+    url: "/getreport/", 
+success: function(result){
+	 latest_temp.push(result.latest_temp);
+	     
+	 updatetemp()
+	 }
+    });
+
+}
+,2000);
+
+
+
+function updatetemp(){
+
+d3.select('#latest_temp').remove();
+
+
+
+var templine = d3.line()
+    .x(function(d) { 
+       return x(new Date(d.datetime)); })
+    .y(function(d) { 
+       return y(d.temp); });
+
+
+
+g.append("path")
+.datum(latest_temp)
+.attr("fill", "none")
+.attr("stroke", "red")
+.attr("stroke-linejoin", "round")
+.attr("stroke-linecap", "round")
+.attr("stroke-width", 1.5)
+.attr("d", templine)
+.attr("id","latest_temp");
+
+
+
+}
 
 function addTheLine(){
-var svg = d3.select("svg"),
-    margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = +svg.attr("width") - margin.left - margin.right,
-    height = +svg.attr("height") - margin.top - margin.bottom,
-    g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.select("#prediction").remove();//remove any previous graph
+d3.selectAll(".grid").remove();//cleanup grid lines
+d3.selectAll(".axes").remove();//cleanup axes
 
 //var parseTime = d3.timeParse("%d-%b-%y");
 
-var x = d3.scaleTime()
-    .rangeRound([0, width]);
-
-var y = d3.scaleLinear()
-    .rangeRound([height, 0]);
 
 var line = d3.line()
     .x(function(d) { 
@@ -80,11 +162,12 @@ y.domain([-40,120])//tempearature range
 
 g.append("g")
 .attr("transform", "translate(0," + height + ")")
+.attr("class","axes")
 .call(d3.axisBottom(x))
 .select(".domain");
-//.remove();
 
 g.append("g")
+.attr("class","axes")
 .call(d3.axisLeft(y))
 .append("text")
 .attr("fill", "#000")
@@ -101,13 +184,15 @@ g.append("path")
 .attr("stroke-linejoin", "round")
 .attr("stroke-linecap", "round")
 .attr("stroke-width", 1.5)
-.attr("d", line);
+.attr("d", line)
+.attr("id","prediction");
 
 // add the X gridlines
 g.append("g")			
 .attr("stroke","gray")			
 .attr("stroke-width", 0.1)
 .attr("transform", "translate(0," + height + ")")
+.attr("class","grid")
 .call(make_x_gridlines()
 .tickSize(-height)
 .tickFormat("")
@@ -117,6 +202,7 @@ g.append("g")
 g.append("g")
 .attr("stroke","gray")			
 .attr("stroke-width", 0.1)
+.attr("class","grid")
 .call(make_y_gridlines()
 .tickSize(-width)
 .tickFormat("")

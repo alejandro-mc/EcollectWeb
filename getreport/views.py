@@ -12,7 +12,7 @@ def index(request):
 
     #get latest temps
     latest_temp = SensorData.objects.latest('time_recorded')
-    data['latest_temp'] = latest_temp.temperature
+    data['latest_temp'] = {'datetime':latest_temp.time_recorded,'temp':latest_temp.temperature}
 
     #get latest prediction
     prediction = Prediction.objects.latest('id')
